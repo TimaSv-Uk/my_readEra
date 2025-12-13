@@ -37,6 +37,7 @@ jobs:
           # This should match the directory where Astro outputs your static files.
           # For Astro, this is typically 'dist' unless configured otherwise.
           path: dist
+          name: astro-pages-artifact
 
   deploy:
     needs: build
