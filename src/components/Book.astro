@@ -1,0 +1,19 @@
+---
+const { json_book } = Astro.props;
+
+const isFavorite = json_book.data.doc_favorites_time > 0;
+
+const bookStyle = `
+  background: #3E4B5B;
+  border: 2px solid ${isFavorite ? "#B48EAD" : "#81A1C1"};
+  color: ${isFavorite ? "#B48EAD" : "#81A1C1"};
+  ${isFavorite ? "margin-bottom: 2px;" : ""}
+`;
+---
+
+<div
+  id={json_book.uri}
+  style={bookStyle}
+>
+  {json_book.data.doc_title} -- {json_book.data.doc_have_read_time}
+</div>
