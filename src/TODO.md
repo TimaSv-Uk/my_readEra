@@ -1,4 +1,4 @@
-## TODO:
+## MY PLLLAN:
     - render json as a shelf of books
         - variables for rendered books: 
             page_count => width, height
@@ -10,3 +10,11 @@
 
 ### MAYBE
     - add page with dnf books
+
+14/12/2025
+COMPLETE:
+    - display all books with width relative to numberOFpages and sudo random height
+TODO:
+    - make shelf look like a shelf
+        - put all books side by side with no space betwixt )
+        - calculate number of book on shelf that will fit on screen

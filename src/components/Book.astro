@@ -1,44 +1,16 @@
 ---
 const { jsonBook,bookSizeMinMax } = Astro.props;
 import { RNG } from "./randomNuberSeed.js";
-// NOTE: 
-// only works for IT by King 
-// real_page_count = 1348 
-// readera_font_dended_page_count = 3445 
-// result is 2.4 ratio
-// only works for all the sinner bleed
-// real_page_count = 339 
-// readera_font_dended_page_count = 746,for font 60 
-// result is 2.2 ratio and it almost get real page number 
-// count for most of the books
-// MODE details in tring_to_get_page_number_for_any_font_size.md file
 
-// TODO:
-// i will make do with this but the PROBLEM WILL APEAR 
-// IF I CHAGE FONT IN READREA APP FROM MY 
-// CURRECT 60 real page counts will be a mess
-// in addition all books that i opened in app wile having 
-// font set to something other than 60
-// will have large inacurrasies 
-
-const real_page_count = 339 
-let readera_font_dended_page_count = 746 
-
-const pages_font_ratio = readera_font_dended_page_count/real_page_count
 const dataDocSizeData = JSON.parse(jsonBook.data.doc_position)
-const correct_number_of_pages =  Math.round(dataDocSizeData.pagesCount / pages_font_ratio)
-// console.log("dataDocSizeDatao: ",correct_number_of_pages)
 
-
-const book_uri_int = jsonBook.uri.split("").reduce((a,b)=>a+b.charCodeAt(0),0)
-let book_height = new RNG(book_uri_int).nextInt() % bookSizeMinMax.max_height;
+const book_heigth_seed = jsonBook.uri.split("").reduce((a ,b)=> a + b.charCodeAt(0),0)
+let book_height = new RNG(book_heigth_seed).nextInt() % bookSizeMinMax.max_height;
 book_height = Math.max(bookSizeMinMax.min_height,  book_height);
-let book_width = correct_number_of_pages/10;
+
+let book_width = dataDocSizeData.pagesCount/bookSizeMinMax.page_px_ratio;
 book_width = Math.max(bookSizeMinMax.min_width,  book_width);
 book_width = Math.min(bookSizeMinMax.max_width,  book_width);
-
-
-
 
 const isFavorite = jsonBook.data.doc_favorites_time > 0;
 const bookStyle = `
@@ -47,8 +19,7 @@ const bookStyle = `
   color: ${isFavorite ? "#B48EAD" : "#81A1C1"}; ${isFavorite ? "margin-bottom: 2px;" : ""}
   width: ${book_width}px;
   height: ${book_height}px;
-
-  // transform: rotate(90deg) scaleX(-1);
+// transform: rotate(90deg) scaleX(-1);
 `;
 ---
   <div

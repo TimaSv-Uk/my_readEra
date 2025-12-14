@@ -3,48 +3,56 @@ import Book from "./Book.astro";
 
 const { jsonBooks } = Astro.props;
 
-//NOTE: get font size from app
-//server side
-// import fs from 'fs/promises';
-// import path from 'path';
-//const prefsReadEraPath = path.resolve('./src/readEra_backup/prefs.xml');
-//const prefsReadEraXMLText = await fs.readFile(prefsReadEraPath, 'utf-8');
-//client side
-// const parser = new DOMParser();
-// const doc = parser.parseFromString(prefsReadEraXMLText, "text/xml");
-// const font_size_reflowable = 
-// [...doc.getElementsByTagName("String")].find(
-//   (el) => el.getAttribute("name") === "pref_reflowable_font_size").textContent
-//
-//<Book jsonBook={jsonBook},bookSizeMinMax={{ -->
-//    "min_height":170,"min_height":200, -->
-//    "min_width":40,"min_width":200, -->
-//  }} )))} -->
+const bookCount = jsonBooks.length;
+const bookSizeMinMax={
+    "page_px_ratio":20,
+    "min_height":170,"max_height":200, 
+    "min_width":50,"max_width":180, 
+    };
+function chunkArray(arr, size) {
+  const result = [];
+  for (let i = 0; i < arr.length; i += size) {
+    result.push(arr.slice(i, i + size));
+  }
+  return result;
+}
 ---
 
-<div
-  style="
-    border: 3px solid #D4D9E4;
-    display: grid;
-    //gap: 10px;
-    grid: auto-flow minmax(2em, max-content) / repeat(50, [line1 line2 line3] max-content);
-    align-items: center;
-  //justify-content: center;
-  "
->
-  {jsonBooks.map((jsonBook) => (
-    <Book jsonBook={jsonBook} bookSizeMinMax={{
-    "min_height":170,"max_height":200, 
-    "min_width":40,"max_width":200, 
-  }} />
-  ))} 
-</div>
-
-<script define:vars={{json_books: jsonBooks}}>
-
-  console.log(json_books.length)
+<script define:vars={{bookCount,bookSizeMinMax}}>
+  const booksPerRow = Math.max(
+    1,
+    Math.floor((bookCount * bookSizeMinMax.max_width)/window.innerWidth)
+  );
+  console.log(booksPerRow)
   console.log(window.innerWidth)
   console.log(window.innerHeight)
 </script>
 
+
+<div id="shelf"
+  style="
+    
+    border: 3px solid #D4D9E4;
+    width: fit-content;
+  "
+>
+  {chunkArray(jsonBooks,2).map((rowOfBooks,i) => (
+
+  <div id=`${i}`
+      class="shelf_row"
+      style="
+        border: 3px solid #E03F66;
+
+    width: fit-content;
+        display:flex;
+        flex:col;
+      "
+    >
+
+      {rowOfBooks.map((jsonBook) => (
+        <Book jsonBook={jsonBook} bookSizeMinMax={bookSizeMinMax} />
+      ))} 
+    </div>
+  ))} 
+</div>
 

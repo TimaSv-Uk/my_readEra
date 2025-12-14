@@ -265,3 +265,27 @@ NOTE:  code to get font size
         //   (el) => el.getAttribute("name") === "pref_reflowable_font_size").textContent
 
     ```
+
+# DEAM it i could have figured that i will render books on number of pages per pixel  
+
+        ```
+        const pages_font_ratio = readera_font_dended_page_count/real_page_count
+        const dataDocSizeData = JSON.parse(jsonBook.data.doc_position)
+        const correct_number_of_pages =  Math.round(dataDocSizeData.pagesCount / pages_font_ratio)
+
+        ```
+
+# now my fancy ass ratio can be replaced with simple  "page_px_ratio":20 
+
+        ```
+        const bookSizeMinMax={
+            "page_px_ratio":20,
+            "min_height":170,"max_height":200, 
+            "min_width":40,"max_width":200, 
+            };
+        ```
+# and final goal is sorta accomlished YAY ME 
+
+        ```
+        let book_width = dataDocSizeData.pagesCount/bookSizeMinMax.page_px_ratio;
+        ```
