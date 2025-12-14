@@ -13,6 +13,7 @@ const bookSizeMinMax={
 <div id="shelf" class="shelf-container"
   style=`
     display: none;
+
 `
 > {jsonBooks.map((jsonBook) => (
     <Book jsonBook={jsonBook} bookSizeMinMax={bookSizeMinMax} />
@@ -21,9 +22,13 @@ const bookSizeMinMax={
 <script define:vars={{jsonBooks, bookSizeMinMax}}>
 
   const bookCount = jsonBooks.length;
-  function chunkArray(arr, size) {
-    const result = []; for (let i = 0; i < arr.length; i += size) {
-      result.push(arr.slice(i, i + size));
+
+  function chunkArray(arr, numOfChunks) {
+    const result = [];
+    let chunkSize = Math.floor(arr.length/numOfChunks)
+    // console.log(chunkSize)
+    for (let i = 0; i < arr.length; i += chunkSize) {
+      result.push(arr.slice(i, i + chunkSize));
     }
     return result;
   }
@@ -32,15 +37,20 @@ const bookSizeMinMax={
 
     const booksPerRow = Math.max(
       1,
+
       Math.floor((bookCount * bookSizeMinMax.max_width)/window.innerWidth)
     );
+
+    // (bookSizeMinMax.min_width+bookSizeMinMax.max_width)/2)
+    console.log(booksPerRow)
     let bookRows = chunkArray(jsonBooks,booksPerRow);
 
+    console.log(bookRows)
     const shelf = document.getElementById(`shelf`);
 
-      console.log(shelf)
-    for(let row = 0;bookRows.length >row; row++){
-        let bookRow = bookRows[row];
+      // console.log(shelf)
+    for(let row = 0; bookRows.length > row; row++){
+      let bookRow = bookRows[row];
       let shelfRow = document.getElementById(`${row}_row`);
       if(shelfRow == null){
 
@@ -50,10 +60,14 @@ const bookSizeMinMax={
       }
       //
         shelfRow.style = `
-          border: 5px solid #B65D66;
-          // flex: row;
-          // display: flex;
-          // align-items:flex-end;
+        border: 10px solid transparent; /* Required for border-image */
+        border-image: url("/src/assets/border.png") 30 stretch;
+        display: flex;
+        flex-direction: row;
+        gap: 0.1rem;     
+        width: 90%;
+        align-items:flex-end;
+        margin: auto, auto;
         `
 
         for(let bookIndex = 0;bookRow.length >bookIndex; bookIndex++){
@@ -64,15 +78,14 @@ const bookSizeMinMax={
       shelf.appendChild(shelfRow);
     }
       shelf.style = `
+        // border: 5px solid #D4D9E4;
         display: flex;
-        flex: col;
+        flex-wrap: wrap;
         gap: 0.1rem;     
-        border: 3px solid #D4D9E4;
         width: 85%;
         align-items:flex-end;
+
       `
-    console.log(window.innerWidth)
-    console.log(window.innerHeight)
   }
 function removeEmptyRows() {
   const shelf = document.getElementById("shelf");

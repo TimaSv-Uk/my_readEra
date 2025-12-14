@@ -145,3 +145,19 @@ so far i use flex:wrap and it kinda works but i have no idea how to add shelf pl
             })
 
             ```
+
+## some progress now all books are align and stand on shelws
+## THE PROBLEM: shelfs are half empty the culprit is code bellow
+            ```
+    const booksPerRow = Math.max(
+      1,
+
+      Math.floor((bookCount * bookSizeMinMax.max_width)/window.innerWidth)
+    );
+
+    // (bookSizeMinMax.min_width+bookSizeMinMax.max_width)/2)
+
+            ```
+##  in this code i bet on the fact that all books on shelw will be MaxSize so they all fit
+##  i guess i will count eachBookSize (books are prerenderd) and somehow split it from there
+### P.S. i just came up with this solution GO ME!!!!!!🪙🪙🪙🪙
