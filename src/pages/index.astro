@@ -12,18 +12,13 @@ function get_read_books(library_data:any) {
 }
 
 let readBooks = get_read_books(library);
-
-// readBooks = readBooks.sort(
-//   (a, b) => b["data"]["doc_file_size"] - a["data"]["doc_file_size"],
-// );
 readBooks = readBooks.sort(
   (a, b) => b["data"]["doc_have_read_time"] - a["data"]["doc_have_read_time"],
 );
-// console.log(readBooks[0]);
 
 ---
 
 <Layout>
-  <Shelf books={readBooks.slice(0,3)}/>
-  <!-- <Shelf books={readBooks}/> -->
+  <!-- <Shelf books={readBooks.slice(0,3)}/> -->
+  <Shelf jsonBooks={readBooks}/>
 </Layout>

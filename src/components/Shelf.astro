@@ -1,18 +1,50 @@
 ---
 import Book from "./Book.astro";
 
-const { books } = Astro.props;
+const { jsonBooks } = Astro.props;
+
+//NOTE: get font size from app
+//server side
+// import fs from 'fs/promises';
+// import path from 'path';
+//const prefsReadEraPath = path.resolve('./src/readEra_backup/prefs.xml');
+//const prefsReadEraXMLText = await fs.readFile(prefsReadEraPath, 'utf-8');
+//client side
+// const parser = new DOMParser();
+// const doc = parser.parseFromString(prefsReadEraXMLText, "text/xml");
+// const font_size_reflowable = 
+// [...doc.getElementsByTagName("String")].find(
+//   (el) => el.getAttribute("name") === "pref_reflowable_font_size").textContent
+//
+//<Book jsonBook={jsonBook},bookSizeMinMax={{ -->
+//    "min_height":170,"min_height":200, -->
+//    "min_width":40,"min_width":200, -->
+//  }} )))} -->
 ---
 
 <div
   style="
     border: 3px solid #D4D9E4;
     display: grid;
-    gap: 10px;
-    grid: auto-flow minmax(2em, max-content) / repeat(50, [line1 line2 line3] 200px);
+    //gap: 10px;
+    grid: auto-flow minmax(2em, max-content) / repeat(50, [line1 line2 line3] max-content);
+    align-items: center;
+  //justify-content: center;
   "
 >
-  {books.map((json_book) => (
-    <Book json_book={json_book} />
-  ))}
+  {jsonBooks.map((jsonBook) => (
+    <Book jsonBook={jsonBook} bookSizeMinMax={{
+    "min_height":170,"max_height":200, 
+    "min_width":40,"max_width":200, 
+  }} />
+  ))} 
 </div>
+
+<script define:vars={{json_books: jsonBooks}}>
+
+  console.log(json_books.length)
+  console.log(window.innerWidth)
+  console.log(window.innerHeight)
+</script>
+
+
