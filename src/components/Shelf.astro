@@ -1,31 +1,34 @@
 ---
 import Book from "./Book.astro";
-import border from '../assets/border.png'
+import border from "../assets/border.png";
 const { jsonBooks } = Astro.props;
 
-const bookSizeMinMax={
-    "page_px_ratio":20,
-    "min_height":170,"max_height":200, 
-    "min_width":50,"max_width":180, 
-    };
+const bookSizeMinMax = {
+  page_px_ratio: 20,
+  min_height: 170,
+  max_height: 200,
+  min_width: 50,
+  max_width: 180,
+};
 ---
 
-<div id="shelf" class="shelf-container"
-  style=`
+<div id="shelf" class="shelf-container" style=`
     display: none;
 
-`
-> {jsonBooks.map((jsonBook) => (
-    <Book jsonBook={jsonBook} bookSizeMinMax={bookSizeMinMax} />
-  ))} </div>
+`>
+  {
+    jsonBooks.map((jsonBook) => (
+      <Book jsonBook={jsonBook} bookSizeMinMax={bookSizeMinMax} />
+    ))
+  }
+</div>
 
-<script define:vars={{jsonBooks, bookSizeMinMax,border}}>
-
+<script define:vars={{ jsonBooks, bookSizeMinMax, border }}>
   const bookCount = jsonBooks.length;
 
   function chunkArray(arr, numOfChunks) {
     const result = [];
-    let chunkSize = Math.floor(arr.length/numOfChunks)
+    let chunkSize = Math.floor(arr.length / numOfChunks);
     // console.log(chunkSize)
     for (let i = 0; i < arr.length; i += chunkSize) {
       result.push(arr.slice(i, i + chunkSize));
@@ -33,81 +36,109 @@ const bookSizeMinMax={
     return result;
   }
 
-  function setUpShelf(){
+  function setUpShelf() {
+    const shelf = document.getElementById(`shelf`);
 
     const booksPerRow = Math.max(
       1,
 
-      Math.floor((bookCount * bookSizeMinMax.max_width)/window.innerWidth)
+      Math.floor(
+        (bookCount * bookSizeMinMax.max_width) /
+          Math.max(bookSizeMinMax.max_width, window.innerWidth),
+      ),
     );
 
-    // (bookSizeMinMax.min_width+bookSizeMinMax.max_width)/2)
-    let bookRows = chunkArray(jsonBooks,booksPerRow);
+    let bookRows = chunkArray(jsonBooks, booksPerRow);
 
-    const shelf = document.getElementById(`shelf`);
-
-      // console.log(shelf)
-    for(let row = 0; bookRows.length > row; row++){
+    for (let row = 0; bookRows.length > row; row++) {
       let bookRow = bookRows[row];
       let shelfRow = document.getElementById(`${row}_row`);
-      if(shelfRow == null){
-
+      if (shelfRow == null) {
         shelfRow = document.createElement("div");
-        shelfRow.id = `${row}_row`
-        shelfRow.className = `shelfRow`
+        shelfRow.id = `${row}_row`;
+        shelfRow.className = `shelfRow`;
       }
-        // console.log(border.src);
-        shelfRow.style = `
+      // console.log(border.src);
+      shelfRow.style = `
         border: 10px solid #D4D9E4; 
         display: flex;
-        flex-direction: row;
+        flex-direction: column;
+        width: 90%;
+        align-items:center;
+        margin: auto, auto;
+        `;
+
+      // TODO:
+      //  make shelf with flex like with  topBar| BookComponent bootomBat|
+      const rowOfBooks = document.createElement("div");
+      rowOfBooks.style = `
+        display: flex;
         gap: 0.1rem;     
         width: 90%;
         align-items:flex-end;
         margin: auto, auto;
-        `
+        padding-top: 0.5rem
+        `;
+      const topShelfBar = document.createElement("div");
+      const bottomShelfBar = document.createElement("div");
+      topShelfBar.style = `
+          background-color: #DD3E65;
+          width: 100%;
+          height: 20px;
+        `;
+      bottomShelfBar.style = `
+          background-color: #DD3E65;
+          width: 100%;
+          height: 20px;
+        `;
+      shelfRow.appendChild(topShelfBar);
+      for (let bookIndex = 0; bookRow.length > bookIndex; bookIndex++) {
+        let book = bookRow[bookIndex];
+        const renderedBook = document.getElementById(`${book.uri}`);
+        rowOfBooks.appendChild(renderedBook);
+      }
 
-        for(let bookIndex = 0;bookRow.length >bookIndex; bookIndex++){
-          let book = bookRow[bookIndex];
-          const renderedBook = document.getElementById(`${book.uri}`);
-          shelfRow.appendChild(renderedBook);
-        }
+      shelfRow.appendChild(rowOfBooks);
+      shelfRow.appendChild(bottomShelfBar);
+
       shelf.appendChild(shelfRow);
     }
-      shelf.style = `
-        // border: 5px solid #D4D9E4;
+    shelf.style = `
         display: flex;
         flex-wrap: wrap;
         gap: 0.1rem;     
         width: 85%;
         align-items:flex-end;
 
-      `
+      `;
   }
-function removeEmptyRows() {
-  const shelf = document.getElementById("shelf");
-// shelf.replaceChildren(); 
-  [...shelf.children].forEach(node => {
-    if (!node.querySelector(".book")) {
-      node.remove();
-    }
+
+  /** remove all elements from shelf exept books */
+  function removeEmptyRows() {
+    const shelf = document.getElementById("shelf");
+    const books = shelf.querySelectorAll(".book");
+    shelf.replaceChildren(...books);
+
+    console.log(books);
+    console.log(shelf);
+  }
+
+  window.addEventListener("DOMContentLoaded", () => {
+    requestAnimationFrame(() => {
+      setUpShelf();
+    });
+  });
+  window.addEventListener("resize", () => {
+    requestAnimationFrame(() => {
+      removeEmptyRows();
+      setUpShelf();
+    });
   });
 
-  [...shelf.children].forEach(row => {
-    if (row.children.length === 0) {
-      row.remove();
-    }
+  const books = document.querySelectorAll(`.book`);
+  books.forEach((book) => {
+    book.addEventListener("click", () => {
+      console.log(book);
+    });
   });
-}
-
-  window.addEventListener("DOMContentLoaded",() =>{
-
-    setUpShelf()
-  })
-  window.addEventListener("resize",() =>{
-
-    setUpShelf()
-    removeEmptyRows()
-  })
-
 </script>

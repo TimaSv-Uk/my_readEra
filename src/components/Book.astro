@@ -31,14 +31,4 @@ const bookStyle = `
   >
     {jsonBook.data.doc_title}
   </div>
-  <!--  -->
-  <script define:vars={{
-    json_book: jsonBook, 
-  }}>
-    
-    const book = document.getElementById(`${json_book.uri}`);
-    book.addEventListener('click', () => {
-      
-        console.log(book)
-      });
-  </script>
+
