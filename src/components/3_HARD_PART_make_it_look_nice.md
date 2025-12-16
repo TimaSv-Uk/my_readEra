@@ -30,3 +30,24 @@ TODO:
 ![Book spines](../assets/dev/IDEA_SH.png)
 
 
+
+## Progress so far, looks better  if you ask me 
+now need to fix title size problem for books with large width
+            ```
+            let randomColor = "#" + ((Math.random() * 0xffffff) << 0).toString(16);
+            let bookTitle = jsonBook.data.doc_title ?? "Title";
+            let filterdBookTitle = jsonBook.data.doc_title
+              ? jsonBook.data.doc_title.split(" ").slice(0, 6).join(" ")
+              : "TITLE";
+            let bookTitleFontSize =
+              bookTitle.split(" ").length > 3
+                ? `${book_width / 5}px`
+                : `${book_width / 4}px`;
+            console.log(bookTitle, bookTitleFontSize);
+            ```
+
+### styleBookFirstAttempt
+![styleBookFirstAttempt1](../assets/dev/styleBookFirstAttempt1.png)
+![styleBookFirstAttempt2](../assets/dev/styleBookFirstAttempt2.png)
+
+styleBookFirstAttempt2

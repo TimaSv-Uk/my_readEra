@@ -1,16 +1,19 @@
 ---
-const { jsonBook,bookSizeMinMax } = Astro.props;
+const { jsonBook, bookSizeMinMax } = Astro.props;
 import { RNG } from "./randomNuberSeed.js";
 
-const dataDocSizeData = JSON.parse(jsonBook.data.doc_position)
+const dataDocSizeData = JSON.parse(jsonBook.data.doc_position);
 
-const book_heigth_seed = jsonBook.uri.split("").reduce((a ,b)=> a + b.charCodeAt(0),0)
-let book_height = new RNG(book_heigth_seed).nextInt() % bookSizeMinMax.max_height;
-book_height = Math.max(bookSizeMinMax.min_height,  book_height);
+const book_heigth_seed = jsonBook.uri
+  .split("")
+  .reduce((a, b) => a + b.charCodeAt(0), 0);
+let book_height =
+  new RNG(book_heigth_seed).nextInt() % bookSizeMinMax.max_height;
+book_height = Math.max(bookSizeMinMax.min_height, book_height);
 
-let book_width = dataDocSizeData.pagesCount/bookSizeMinMax.page_px_ratio;
-book_width = Math.max(bookSizeMinMax.min_width,  book_width);
-book_width = Math.min(bookSizeMinMax.max_width,  book_width);
+let book_width = dataDocSizeData.pagesCount / bookSizeMinMax.page_px_ratio;
+book_width = Math.max(bookSizeMinMax.min_width, book_width);
+book_width = Math.min(bookSizeMinMax.max_width, book_width);
 
 const isFavorite = jsonBook.data.doc_favorites_time > 0;
 const bookStyle = `
@@ -20,15 +23,49 @@ const bookStyle = `
   color: ${isFavorite ? "#B48EAD" : "#81A1C1"}; 
   width: ${book_width}px;
   height: ${book_height}px;
-  //box-shadow: 0 5px 0 0 #D4D9E4;
   // transform: rotate(90deg) scaleX(-1);
 `;
+let randomColor = "#" + ((Math.random() * 0xffffff) << 0).toString(16);
+let bookTitle = jsonBook.data.doc_title ?? "Title";
+let filterdBookTitle = jsonBook.data.doc_title
+  ? jsonBook.data.doc_title.split(" ").slice(0, 6).join(" ")
+  : "TITLE";
+let bookTitleFontSize =
+  bookTitle.split(" ").length > 3
+    ? `${book_width / 5}px`
+    : `${book_width / 4}px`;
+console.log(bookTitle, bookTitleFontSize);
 ---
-  <div
-    id={jsonBook.uri}
-    class="book"
-    style={bookStyle}
-  >
-    {jsonBook.data.doc_title}
-  </div>
 
+<div id={jsonBook.uri} class="book" style={bookStyle}>
+  <div
+    style=`
+    background: ${randomColor};
+    height: 20%;
+    opacity: 0.2;
+
+  `
+  >
+  </div>
+  <div
+    style=`
+    background: #252932;
+    height: 80%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  `
+  >
+    <div
+      style=`
+      margin-top: 10%;
+      margin-bottom: 10%;
+      text-wrap: wrap;
+      transform: rotate(-90deg);
+      font-size: ${bookTitleFontSize}; 
+    `
+    >
+      {filterdBookTitle}
+    </div>
+  </div>
+</div>
