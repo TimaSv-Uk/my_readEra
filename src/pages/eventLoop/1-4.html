@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Community Group App</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Rubik+Mono+One&family=Rubik:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'rubik': ['Rubik', 'sans-serif'],
+                        'rubik-mono': ['Rubik Mono One', 'sans-serif'],
+                    },
+                    colors: {
+                        primary: '#5b9ff7',
+                        'primary-dark': '#4a8fe8',
+                        accent: '#eee154',
+                        'text-dark': '#3e627f',
+                        'text-secondary': '#5b7082',
+                        'tag-bg': '#41cae4',
+                        inactive: '#98adc1',
+                    },
+                    borderRadius: {
+                        'md': '12px',
+                        'lg': '16px',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Rubik', sans-serif; }
+        h1, h2, h3 { font-family: 'Rubik Mono One', sans-serif; }
+
+        .tab-btn.active { color: #5b9ff7; }
+        .tab-btn.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0; left: 0;
+            width: 100%; height: 3px;
+            background-color: #5b9ff7;
+            border-radius: 3px 3px 0 0;
+        }
+
+        .tab-content { display: none; }
+        .tab-content.active { display: block; animation: fadeIn 0.3s ease; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        .poll-container {
+            max-height: 0; overflow: hidden;
+            transition: max-height 0.4s ease;
+            background-color: #f9f9f9;
+            margin: 0 -16px -16px -16px;
+            padding: 0 16px;
+            opacity: 0;
+        }
+        .poll-container.active {
+            max-height: 600px;
+            padding: 16px;
+            border-top: 1px solid #eee;
+            margin-top: 8px;
+            opacity: 1;
+        }
+
+        .poll-option-label:has(input:checked) {
+            border-color: #5b9ff7;
+            background-color: #eef7ff;
+            color: #5b9ff7;
+            font-weight: 500;
+        }
+
+        .gallery-scroll::-webkit-scrollbar { display: none; }
+        .gallery-scroll { scrollbar-width: none; }
+
+        @keyframes popIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        .pop-in { animation: popIn 0.3s ease; }
+    </style>
+</head>
+
+<body class="bg-white text-text-dark max-w-[500px] mx-auto min-h-screen border-x border-gray-100">
+
+    <!-- HEADER -->
+    <header class="bg-white pb-4">
+        <!-- Map Area -->
+        <div class="w-full h-[200px] bg-gray-200 relative flex items-center justify-center mb-4 overflow-hidden"
+             style="background-image: radial-gradient(circle, #ccc 1px, transparent 1px); background-size: 20px 20px;">
+            <!-- Pin 1 -->
+            <div class="w-[30px] h-[30px] bg-primary border-[3px] border-white rounded-tl-full rounded-tr-full rounded-br-none rounded-bl-full absolute shadow-lg"
+                 style="top:40%; left:30%; transform: rotate(45deg);"></div>
+            <!-- Pin 2 -->
+            <div class="w-[30px] h-[30px] bg-accent border-[3px] border-white rounded-tl-full rounded-tr-full rounded-br-none rounded-bl-full absolute shadow-lg"
+                 style="top:60%; left:70%; transform: rotate(45deg);"></div>
+            <span class="absolute bottom-2.5 left-2.5 bg-white/80 text-xs px-2 py-1 rounded">Map View</span>
+        </div>
+
+        <!-- Group Info -->
+        <div class="px-4">
+            <h1 class="text-2xl leading-tight mb-2 text-text-dark">UX/UI Designers Kyiv</h1>
+            <p class="text-sm text-text-secondary mb-3">Спільнота для дизайнерів, які люблять пікселі, каву та користувацькі дослідження.</p>
+            <div class="flex flex-wrap gap-1.5">
+                <span class="bg-tag-bg text-white px-2.5 py-1 rounded-full text-[11px] font-medium">#DesignSystem</span>
+                <span class="bg-tag-bg text-white px-2.5 py-1 rounded-full text-[11px] font-medium">#Figma</span>
+                <span class="bg-tag-bg text-white px-2.5 py-1 rounded-full text-[11px] font-medium">#Meetups</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- NAV TABS -->
+    <nav class="flex bg-white px-4 border-b border-gray-100 sticky top-0 z-50">
+        <button class="tab-btn active flex-1 bg-transparent border-none py-4 font-rubik font-medium text-base text-inactive cursor-pointer relative transition-colors duration-200"
+                onclick="switchTab('events', this)">Події</button>
+        <button class="tab-btn flex-1 bg-transparent border-none py-4 font-rubik font-medium text-base text-inactive cursor-pointer relative transition-colors duration-200"
+                onclick="switchTab('history', this)">Історія</button>
+        <button class="tab-btn flex-1 bg-transparent border-none py-4 font-rubik font-medium text-base text-inactive cursor-pointer relative transition-colors duration-200"
+                onclick="switchTab('chat', this)">Чат</button>
+    </nav>
+
+    <!-- EVENTS TAB -->
+    <div id="events" class="tab-content active p-4 bg-gray-50 min-h-[500px]">
+
+        <!-- Event Card 1 -->
+        <div class="bg-white rounded-lg p-4 mb-6 shadow-sm border border-gray-100 overflow-hidden">
+            <div class="inline-flex items-center gap-1.5 bg-amber-50 text-amber-700 text-xs font-medium px-2.5 py-1 rounded-full mb-3">
+                <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+                </svg>
+                <span>Залишилось 2 години</span>
+            </div>
+            <h3 class="text-base font-rubik-mono mb-1 text-text-dark">English Speaking Club</h3>
+            <div class="flex items-center gap-2.5 text-sm text-text-secondary font-medium mb-3">
+                <div class="flex-grow h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                    <div class="h-full bg-primary rounded-full" style="width:80%"></div>
+                </div>
+                <span>8/10 учасників</span>
+            </div>
+            <p class="text-sm text-text-secondary mb-4">Практика розмовної англійської з носієм мови.</p>
+            <div class="flex flex-wrap gap-1.5 mb-4">
+                <span class="bg-tag-bg text-white px-2.5 py-1 rounded-full text-[11px] font-medium">#English</span>
+                <span class="bg-tag-bg text-white px-2.5 py-1 rounded-full text-[11px] font-medium">#Education</span>
+            </div>
+            <div class="border-t border-gray-100 pt-4 mt-4 pb-2">
+                <a href="#" class="block mb-4 text-primary no-underline text-sm font-medium">📍 Кав'ярня "Stories"</a>
+                <div class="flex gap-2.5">
+                    <button class="flex-1 py-3 border-none rounded-xl font-rubik font-bold text-sm cursor-pointer bg-primary text-white transition-all duration-200"
+                            onclick="togglePoll(this)">Взяти участь</button>
+                    <button class="flex-1 py-3 border border-red-500 rounded-xl font-rubik font-bold text-sm cursor-pointer bg-white text-red-500 transition-all duration-200">Відхилити</button>
+                </div>
+            </div>
+
+            <!-- Poll -->
+            <div class="poll-container">
+                <span class="font-bold text-sm block mb-2.5">
+                    🕒 Оберіть слот
+                    <span class="text-[11px] text-gray-400 ml-1.5 bg-gray-200 px-1.5 py-0.5 rounded">🔒 Fixed</span>
+                </span>
+                <div class="flex flex-col gap-2 mb-4">
+                    <label class="poll-option-label flex items-center p-3 bg-white border-2 border-gray-100 rounded-xl text-sm cursor-pointer transition-all duration-200">
+                        <input type="radio" name="ts" checked class="accent-primary mr-3 scale-110"> 19:00 - 20:00
+                    </label>
+                </div>
+                <hr class="border-none h-px bg-gray-200 my-0 mb-5">
+                <span class="font-bold text-sm block mb-2.5">🗣️ Тема:</span>
+                <div class="flex flex-col gap-2 mb-4">
+                    <label class="poll-option-label flex items-center p-3 bg-white border-2 border-gray-100 rounded-xl text-sm cursor-pointer transition-all duration-200">
+                        <input type="radio" name="topic" class="accent-primary mr-3 scale-110"> AI Future
+                    </label>
+                    <label class="poll-option-label flex items-center p-3 bg-white border-2 border-gray-100 rounded-xl text-sm cursor-pointer transition-all duration-200">
+                        <input type="radio" name="topic" class="accent-primary mr-3 scale-110"> Travel
+                    </label>
+                </div>
+                <button class="w-full bg-accent text-gray-800 py-3.5 rounded-xl font-bold border-none cursor-pointer">Надіслати</button>
+            </div>
+        </div>
+
+        <!-- Event Card 2 -->
+        <div class="bg-white rounded-lg p-4 mb-6 shadow-sm border border-gray-100 overflow-hidden">
+            <div class="inline-flex items-center gap-1.5 bg-gray-100 text-gray-500 text-xs font-medium px-2.5 py-1 rounded-full mb-3">
+                <span>Голосування завершено</span>
+            </div>
+            <h3 class="text-base font-rubik-mono mb-1 text-text-dark">Workshop: JS Advanced</h3>
+            <div class="flex items-center gap-2.5 text-sm font-bold text-red-500 mb-3">
+                <div class="flex-grow h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                    <div class="h-full bg-red-500 rounded-full w-full"></div>
+                </div>
+                <span>Full 15/15</span>
+            </div>
+            <p class="text-sm text-text-secondary mb-4">Воркшоп заповнено.</p>
+            <div class="border-t border-gray-100 pt-4 mt-4 pb-2">
+                <a href="#" class="block mb-4 text-primary no-underline text-sm font-medium">📍 Офіс Google</a>
+                <div class="flex gap-2.5">
+                    <button class="flex-1 py-3 bg-blue-50 text-text-dark border-2 border-dashed border-inactive rounded-xl font-rubik font-bold text-sm cursor-pointer transition-all duration-200"
+                            onclick="alert('Підписано!')">🔔 Повідомити про місце</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- HISTORY TAB -->
+    <div id="history" class="tab-content p-4 bg-gray-50 min-h-[500px]">
+        <div class="text-xs uppercase tracking-widest text-inactive mb-3 font-bold pl-1">Жовтень 2024</div>
+
+        <div class="bg-white rounded-lg p-5 mb-6 shadow-sm border border-gray-100">
+            <div class="flex justify-between mb-3">
+                <span class="bg-gray-100 text-text-secondary text-[11px] font-semibold px-2.5 py-1 rounded-full">24.10, Четвер</span>
+            </div>
+            <h3 class="text-base font-rubik-mono mb-1 text-text-dark">Halloween Party 🎃</h3>
+            <div class="flex gap-4 text-sm text-text-secondary mb-4">
+                <span>👥 24 учасники</span>
+                <span>⭐ 4.9/5</span>
+            </div>
+            <div class="gallery-scroll flex gap-2 overflow-x-auto pb-1 mb-4">
+                <div class="w-20 h-20 rounded-xl flex-shrink-0" style="background: linear-gradient(135deg, #FF9A9E 0%, #FECFEF 100%);"></div>
+                <div class="w-20 h-20 rounded-xl flex-shrink-0" style="background: linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%);"></div>
+                <div class="w-20 h-20 rounded-xl flex-shrink-0" style="background: linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%);"></div>
+                <div class="w-20 h-20 rounded-xl bg-gray-100 flex items-center justify-center font-bold text-sm flex-shrink-0">+12</div>
+            </div>
+            <button class="w-full py-3 border border-gray-200 bg-white text-text-dark rounded-xl font-semibold text-sm cursor-pointer flex items-center justify-center gap-2 hover:border-primary hover:text-primary hover:bg-blue-50 transition-all duration-200">
+                Дивитись фотоальбом
+            </button>
+        </div>
+
+        <div class="text-xs uppercase tracking-widest text-inactive mb-3 font-bold pl-1">Вересень 2024</div>
+
+        <div class="bg-white rounded-lg p-5 mb-6 shadow-sm border border-gray-100">
+            <div class="flex justify-between mb-3">
+                <span class="bg-gray-100 text-text-secondary text-[11px] font-semibold px-2.5 py-1 rounded-full">15.09</span>
+            </div>
+            <h3 class="text-base font-rubik-mono mb-2 text-text-dark">Figma: Auto Layout</h3>
+            <div class="bg-gray-50 border-l-4 border-accent px-3 py-3 rounded-r-lg text-sm text-text-secondary mb-4">
+                "Запис лекції та PDF файл доступні."
+            </div>
+            <button class="w-full py-3 border border-gray-200 bg-white text-text-dark rounded-xl font-semibold text-sm cursor-pointer flex items-center justify-center gap-2 hover:border-primary hover:text-primary hover:bg-blue-50 transition-all duration-200">
+                ⬇️ Завантажити матеріали
+            </button>
+        </div>
+
+        <div class="bg-gray-50 opacity-80 rounded-lg p-5 mb-6 border border-gray-100">
+            <div class="flex justify-between mb-3">
+                <span class="bg-red-50 text-red-500 text-[11px] font-semibold px-2.5 py-1 rounded-full">Скасовано</span>
+            </div>
+            <h3 class="text-base font-rubik-mono mb-1 text-gray-400">Пікнік на Трухановому</h3>
+            <p class="text-sm text-gray-400 m-0">Скасовано через дощ.</p>
+        </div>
+    </div>
+
+    <!-- CHAT TAB -->
+    <div id="chat" class="tab-content p-4 bg-gray-50 min-h-[500px]">
+        <div class="flex flex-col h-[600px] bg-white rounded-2xl overflow-hidden border border-gray-100">
+            <div class="flex-1 overflow-y-auto p-5 flex flex-col gap-4 bg-white" id="chatList">
+                <div class="self-center bg-black/5 px-3 py-1 rounded-xl text-[11px] text-text-secondary my-2.5">Сьогодні</div>
+
+                <div class="flex gap-2.5 max-w-[85%]">
+                    <div class="w-8 h-8 rounded-full bg-gray-300 flex-shrink-0"></div>
+                    <div class="bg-gray-100 text-text-dark rounded-tl-none rounded-tr-2xl rounded-br-2xl rounded-bl-2xl px-3.5 py-2.5 text-sm leading-snug shadow-sm">
+                        <span class="text-[11px] text-gray-500 block">Alex</span>
+                        Хто сьогодні йде на зустріч о 18:00?
+                        <span class="text-[10px] block text-right mt-1 opacity-70">14:30</span>
+                    </div>
+                </div>
+
+                <div class="flex gap-2.5 max-w-[85%] self-end">
+                    <div class="bg-primary text-white rounded-tl-2xl rounded-tr-none rounded-br-2xl rounded-bl-2xl px-3.5 py-2.5 text-sm leading-snug shadow-sm">
+                        Я буду! Тему "Future Tech" обрали?
+                        <span class="text-[10px] block text-right mt-1 opacity-70">14:35</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white px-4 py-3 border-t border-gray-100 flex items-center gap-2.5">
+                <input type="text" id="msgInput"
+                       class="w-full px-4 py-3 rounded-3xl border border-gray-200 bg-gray-50 outline-none text-sm"
+                       placeholder="Напишіть повідомлення..."
+                       onkeydown="if(event.key==='Enter') sendMessage()">
+                <button onclick="sendMessage()"
+                        class="w-10 h-10 rounded-full border-none bg-primary text-white flex items-center justify-center cursor-pointer text-sm flex-shrink-0">➤</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function switchTab(tabName, btn) {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            document.getElementById(tabName).classList.add('active');
+            btn.classList.add('active');
+        }
+
+        function togglePoll(btn) {
+            const poll = btn.closest('.bg-white').querySelector('.poll-container');
+            if (!poll) return;
+            poll.classList.toggle('active');
+            btn.textContent = poll.classList.contains('active') ? 'Згорнути' : 'Взяти участь';
+            btn.style.backgroundColor = poll.classList.contains('active') ? '#41cae4' : '';
+        }
+
+        function sendMessage() {
+            const input = document.getElementById('msgInput');
+            const chatList = document.getElementById('chatList');
+            const text = input.value.trim();
+            if (!text) return;
+
+            const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            chatList.insertAdjacentHTML('beforeend', `
+                <div class="flex gap-2.5 max-w-[85%] self-end pop-in">
+                    <div class="bg-primary text-white rounded-tl-2xl rounded-tr-none rounded-br-2xl rounded-bl-2xl px-3.5 py-2.5 text-sm leading-snug shadow-sm">
+                        ${text}
+                        <span class="text-[10px] block text-right mt-1 opacity-70">${time}</span>
+                    </div>
+                </div>`);
+            chatList.scrollTop = chatList.scrollHeight;
+            input.value = '';
+        }
+    </script>
+</body>
+</html>

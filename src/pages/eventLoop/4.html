@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="uk">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>History Tab - Group Events</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Rubik+Mono+One&family=Rubik:wght@300;400;500;700&display=swap" rel="stylesheet">
+
+    <style>
+        /* --- DESIGN TOKENS --- */
+        :root {
+            --primary: #5b9ff7;
+            --accent: #eee154;
+            --text-dark: #3e627f;
+            --text-secondary: #5b7082;
+            --bg-secondary: #f4f6f8;
+            --bg-surface: #ffffff;
+            --border-light: #eee;
+            --danger: #e74c3c;
+            --success: #4CAF50;
+            
+            --radius-lg: 18px;
+            --radius-md: 12px;
+            --spacing-md: 16px;
+        }
+
+        /* --- RESET & BASE --- */
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        body {
+            font-family: 'Rubik', sans-serif;
+            background-color: var(--bg-secondary);
+            color: var(--text-dark);
+            padding-bottom: 40px; /* Space for scroll */
+            max-width: 500px;
+            margin: 0 auto;
+            min-height: 100vh;
+            border-left: 1px solid #eee;
+            border-right: 1px solid #eee;
+        }
+
+        /* --- NAVIGATION TABS (Fixed Top) --- */
+        .nav-tabs {
+            display: flex;
+            background: white;
+            padding: 0 var(--spacing-md);
+            border-bottom: 1px solid #eee;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .tab-btn {
+            flex: 1;
+            background: none;
+            border: none;
+            padding: 16px 0;
+            font-family: 'Rubik', sans-serif;
+            font-weight: 500;
+            font-size: 16px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            position: relative;
+            transition: color 0.2s;
+        }
+
+        /* Active State for History Tab */
+        .tab-btn.active {
+            color: var(--primary);
+        }
+        .tab-btn.active::after {
+            content: ''; position: absolute; bottom: 0; left: 0; width: 100%; height: 3px;
+            background-color: var(--primary); border-radius: 3px 3px 0 0;
+        }
+
+        /* --- MAIN CONTENT CONTAINER --- */
+        .history-container {
+            padding: 20px 16px;
+        }
+
+        /* --- MONTH SEPARATOR --- */
+        .month-label {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #98adc1;
+            margin-bottom: 12px;
+            font-weight: 700;
+            padding-left: 4px;
+        }
+
+        /* --- HISTORY CARD COMPONENT --- */
+        .history-card {
+            background: white;
+            border-radius: var(--radius-lg);
+            padding: 20px;
+            border: 1px solid var(--border-light);
+            margin-bottom: 24px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+            transition: transform 0.2s;
+        }
+
+        .history-card:active {
+            transform: scale(0.99);
+        }
+
+        /* Header Area */
+        .card-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+        }
+
+        .date-badge {
+            background-color: #f0f4f8;
+            color: var(--text-secondary);
+            font-size: 11px;
+            font-weight: 600;
+            padding: 4px 10px;
+            border-radius: 20px;
+            display: inline-block;
+        }
+
+        .status-cancelled {
+            background-color: #ffebee;
+            color: var(--danger);
+        }
+
+        h3 {
+            font-family: 'Rubik Mono One', sans-serif;
+            font-size: 16px;
+            line-height: 1.4;
+            color: var(--text-dark);
+            margin: 8px 0;
+        }
+
+        /* Stats Row */
+        .stats-row {
+            display: flex;
+            gap: 16px;
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-bottom: 16px;
+        }
+        .stat-item { display: flex; align-items: center; gap: 5px; }
+        .stat-item svg { width: 14px; height: 14px; opacity: 0.7; }
+
+        /* --- GALLERY SCROLL (Horizontal) --- */
+        .gallery-scroll {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            padding-bottom: 4px;
+            margin-bottom: 16px;
+            scrollbar-width: none; /* Firefox */
+        }
+        .gallery-scroll::-webkit-scrollbar { display: none; /* Chrome/Safari */ }
+
+        .gallery-item {
+            width: 90px;
+            height: 90px;
+            border-radius: 12px;
+            flex-shrink: 0;
+            background-size: cover;
+            background-position: center;
+            background-color: #eee;
+            border: 1px solid rgba(0,0,0,0.05);
+        }
+        
+        .gallery-counter {
+            width: 90px;
+            height: 90px;
+            border-radius: 12px;
+            background-color: #f0f4f8;
+            color: var(--text-dark);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 14px;
+            flex-shrink: 0;
+            cursor: pointer;
+        }
+
+        /* --- MATERIALS BOX --- */
+        .materials-box {
+            background-color: #fcfcfc;
+            border-left: 3px solid var(--accent);
+            padding: 12px;
+            border-radius: 0 8px 8px 0;
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-bottom: 16px;
+            line-height: 1.5;
+        }
+
+        /* --- ACTION BUTTONS (Secondary Style) --- */
+        .btn-history-action {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #dce0e5;
+            background: white;
+            color: var(--text-dark);
+            border-radius: var(--radius-md);
+            font-family: 'Rubik', sans-serif;
+            font-weight: 600;
+            font-size: 13px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.2s;
+        }
+        
+        .btn-history-action:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+            background-color: #f8fbff;
+        }
+
+    </style>
+</head>
+
+<body>
+
+
+    <main class="history-container">
+
+        <div class="month-label">Жовтень 2024</div>
+
+        <div class="history-card">
+            <div class="card-top">
+                <span class="date-badge">24.10, Четвер</span>
+            </div>
+            
+            <h3>Halloween Party 🎃</h3>
+            
+            <div class="stats-row">
+                <div class="stat-item">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                    24 учасники
+                </div>
+                <div class="stat-item">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+                    4.9 / 5
+                </div>
+            </div>
+
+            <div class="gallery-scroll">
+                <div class="gallery-item" style="background: linear-gradient(135deg, #FF9A9E 0%, #FECFEF 100%);"></div>
+                <div class="gallery-item" style="background: linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%);"></div>
+                <div class="gallery-item" style="background: linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%);"></div>
+                <div class="gallery-counter">+12</div>
+            </div>
+
+            <button class="btn-history-action">
+                Дивитись фотоальбом
+            </button>
+        </div>
+
+
+        <div class="month-label">Вересень 2024</div>
+
+        <div class="history-card">
+            <div class="card-top">
+                <span class="date-badge">15.09, Неділя</span>
+            </div>
+            
+            <h3>Figma: Auto Layout</h3>
+            
+            <div class="materials-box">
+                "Дякую всім, хто прийшов! Запис лекції та PDF файл з шорткатами вже доступні для завантаження."
+            </div>
+
+            <button class="btn-history-action">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                Завантажити матеріали
+            </button>
+        </div>
+
+        <div class="history-card" style="opacity: 0.8; background-color: #fafafa;">
+            <div class="card-top">
+                <span class="date-badge status-cancelled">Скасовано</span>
+                <span style="font-size:12px; color:#999;">01.09</span>
+            </div>
+            
+            <h3 style="color: #888;">Пікнік на Трухановому</h3>
+            
+            <p style="font-size:13px; color:#999; margin-bottom:0;">
+                Подію було скасовано через сильний дощ. Перенесено на наступний сезон.
+            </p>
+        </div>
+
+    </main>
+
+</body>
+</html>

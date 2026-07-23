@@ -1,0 +1,934 @@
+---
+import EventLoopLayout from "./EventLoopLayout.astro";
+import GroupHeader from "./components/GroupHeader.astro";
+---
+
+<script>
+    // 1. Tab Switcher
+    function switchTab(tabName) {
+        // Buttons styles
+        const buttons = document.querySelectorAll(".tab-btn");
+        buttons.forEach((btn) => btn.classList.remove("active"));
+        // Content visibility
+        const contents = document.querySelectorAll(".tab-content");
+        contents.forEach((content) => content.classList.remove("active"));
+
+        // Activate specific
+        document.getElementById(tabName).classList.add("active");
+
+        // Activate button (simple logic based on order)
+        if (tabName === "events") buttons[0].classList.add("active");
+        if (tabName === "history") buttons[1].classList.add("active");
+        if (tabName === "chat") buttons[2].classList.add("active");
+    }
+
+    // 2. Poll Toggler
+    function togglePoll(btn) {
+        const card = btn.closest(".event-card");
+        const poll = card.querySelector(".poll-container");
+        if (poll) {
+            poll.classList.toggle("active");
+            if (poll.classList.contains("active")) {
+                btn.innerText = "Згорнути";
+                btn.style.backgroundColor = "#41cae4";
+            } else {
+                btn.innerText = "Взяти участь";
+                btn.style.backgroundColor = "";
+            }
+        }
+    }
+
+    // 3. Chat Message Logic
+    function sendMessage() {
+        const input = document.getElementById("msgInput");
+        const chatList = document.getElementById("chatList");
+        const text = input.value;
+
+        if (text.trim() === "") return;
+
+        const newMsg = `
+            <div class="message-group outgoing" style="animation: popIn 0.3s ease">
+                <div class="bubble">
+                    ${text}
+                    <span class="msg-time">${new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</span>
+                </div>
+            </div>`;
+
+        chatList.insertAdjacentHTML("beforeend", newMsg);
+        chatList.scrollTop = chatList.scrollHeight;
+        input.value = "";
+    }
+
+    // Add Chat Animation Style
+    const style = document.createElement("style");
+    style.innerHTML = `@keyframes popIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }`;
+    document.head.appendChild(style);
+</script>
+<EventLoopLayout>
+    <header class="group-header">
+        <div class="map-area">
+            <div class="map-pin pin-1"></div>
+            <div class="map-pin pin-2"></div>
+            <span
+                style="background:rgba(255,255,255,0.8); padding:4px 8px; border-radius:4px; font-size:12px; position:absolute; bottom:10px; left:10px;"
+                >Map View</span
+            >
+        </div>
+        <div class="group-info">
+            <h1>UX/UI Designers Kyiv</h1>
+            <p class="group-desc">
+                Спільнота для дизайнерів, які люблять пікселі, каву та
+                користувацькі дослідження.
+            </p>
+            <div class="tags-container">
+                <span class="tag">#DesignSystem</span>
+                <span class="tag">#Figma</span>
+                <span class="tag">#Meetups</span>
+            </div>
+        </div>
+    </header>
+    <nav class="nav-tabs">
+        <button class="tab-btn active" onclick="switchTab('events')"
+            >Події</button
+        >
+        <button class="tab-btn" onclick="switchTab('history')">Історія</button>
+        <button class="tab-btn" onclick="switchTab('chat')">Чат</button>
+    </nav>
+
+    <div id="events" class="tab-content active">
+        <div class="event-card">
+            <div class="deadline-badge">
+                <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                >
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <polyline points="12 6 12 12 16 14"></polyline>
+                </svg>
+                <span>Залишилось 2 години</span>
+            </div>
+            <div class="card-header">
+                <h3>English Speaking Club</h3>
+                <div class="participants-status">
+                    <div class="status-bar-bg">
+                        <div class="status-bar-fill" style="width: 80%;"></div>
+                    </div>
+                    <span>8/10 учасників</span>
+                </div>
+            </div>
+            <p class="short-desc">
+                Практика розмовної англійської з носієм мови.
+            </p>
+            <div class="tags-container">
+                <span class="tag">#English</span><span class="tag"
+                    >#Education</span>
+            </div>
+
+            <div class="card-footer">
+                <a href="#" class="map-link">📍 Кав'ярня "Stories"</a>
+                <div class="action-buttons">
+                    <button class="btn btn-primary" onclick="togglePoll(this)"
+                        >Взяти участь</button
+                    >
+                    <button class="btn btn-danger">Відхилити</button>
+                </div>
+            </div>
+
+            <div class="poll-container">
+                <div class="poll-section">
+                    <span class="poll-title"
+                        >🕒 Оберіть слот <span class="fixed-label"
+                            >🔒 Fixed</span
+                        ></span
+                    >
+                    <div class="poll-options-list">
+                        <label class="poll-option-label"
+                            ><input type="radio" name="ts" checked /> 19:00 - 20:00</label
+                        >
+                    </div>
+                </div>
+                <hr class="poll-divider" />
+                <div class="poll-section">
+                    <span class="poll-title">🗣️ Тема:</span>
+                    <div class="poll-options-list">
+                        <label class="poll-option-label"
+                            ><input type="radio" name="topic" /> AI Future</label
+                        >
+                        <label class="poll-option-label"
+                            ><input type="radio" name="topic" /> Travel</label
+                        >
+                    </div>
+                </div>
+                <button class="btn btn-submit">Надіслати</button>
+            </div>
+        </div>
+
+        <div class="event-card">
+            <div class="deadline-badge" style="background:#eee; color:#666;">
+                <span>Голосування завершено</span>
+            </div>
+            <div class="card-header">
+                <h3>Workshop: JS Advanced</h3>
+                <div class="participants-status">
+                    <div class="status-bar-bg">
+                        <div
+                            class="status-bar-fill"
+                            style="width: 100%; background-color: #e74c3c;"
+                        >
+                        </div>
+                    </div>
+                    <span style="color: #e74c3c; font-weight: 700;"
+                        >Full 15/15</span
+                    >
+                </div>
+            </div>
+            <p class="short-desc">Воркшоп заповнено.</p>
+            <div class="card-footer">
+                <a href="#" class="map-link">📍 Офіс Google</a>
+                <div class="action-buttons">
+                    <button class="btn btn-notify" onclick="alert('Підписано!')"
+                        >🔔 Повідомити про місце</button
+                    >
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="history" class="tab-content">
+        <div class="month-label">Жовтень 2024</div>
+
+        <div class="history-card">
+            <div class="card-top-history">
+                <span class="date-badge">24.10, Четвер</span>
+            </div>
+            <h3>Halloween Party 🎃</h3>
+            <div class="stats-row">
+                <div class="stat-item">👥 24 учасники</div>
+                <div class="stat-item">⭐ 4.9/5</div>
+            </div>
+            <div class="gallery-scroll">
+                <div
+                    class="gallery-item"
+                    style="background: linear-gradient(135deg, #FF9A9E 0%, #FECFEF 100%);"
+                >
+                </div>
+                <div
+                    class="gallery-item"
+                    style="background: linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%);"
+                >
+                </div>
+                <div
+                    class="gallery-item"
+                    style="background: linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%);"
+                >
+                </div>
+                <div class="gallery-counter">+12</div>
+            </div>
+            <button class="btn-history-action">Дивитись фотоальбом</button>
+        </div>
+
+        <div class="month-label">Вересень 2024</div>
+
+        <div class="history-card">
+            <div class="card-top-history">
+                <span class="date-badge">15.09</span>
+            </div>
+            <h3>Figma: Auto Layout</h3>
+            <div class="materials-box">
+                "Запис лекції та PDF файл доступні."
+            </div>
+            <button class="btn-history-action">⬇️ Завантажити матеріали</button>
+        </div>
+
+        <div class="history-card" style="opacity: 0.8; background:#fafafa;">
+            <div class="card-top-history">
+                <span class="date-badge status-cancelled">Скасовано</span>
+            </div>
+            <h3 style="color:#888;">Пікнік на Трухановому</h3>
+            <p style="font-size:13px; color:#999; margin:0;">
+                Скасовано через дощ.
+            </p>
+        </div>
+    </div>
+
+    <div id="chat" class="tab-content">
+        <div class="chat-container">
+            <div class="chat-messages" id="chatList">
+                <div class="date-separator">Сьогодні</div>
+
+                <div class="message-group incoming">
+                    <div class="avatar" style="background: #ccc;"></div>
+                    <div class="bubble">
+                        <span style="font-size:11px; color:#777; display:block;"
+                            >Alex</span
+                        >
+                        Хто сьогодні йде на зустріч о 18:00?
+                        <span class="msg-time">14:30</span>
+                    </div>
+                </div>
+
+                <div class="message-group outgoing">
+                    <div class="bubble">
+                        Я буду! Тему "Future Tech" обрали?
+                        <span class="msg-time">14:35</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="chat-input-area">
+                <input
+                    type="text"
+                    class="msg-input"
+                    placeholder="Напишіть повідомлення..."
+                    id="msgInput"
+                />
+                <button class="btn-send" onclick="sendMessage()">➤</button>
+            </div>
+        </div>
+    </div>
+</EventLoopLayout>
+
+<style>
+    /* =========================================
+           1. DESIGN TOKENS & BASE
+        ========================================= */
+    :root {
+        --primary: #5b9ff7;
+        --primary-dark: #4a8fe8;
+        --accent: #eee154;
+        --text-dark: #3e627f;
+        --text-secondary: #5b7082;
+        --bg-secondary: #f4f6f8;
+        --bg-surface: #ffffff;
+        --tag-bg: #41cae4;
+        --danger: #e74c3c;
+        --border-light: #eee;
+        --inactive: #98adc1;
+
+        --radius-md: 12px;
+        --radius-lg: 16px;
+        --spacing-sm: 8px;
+        --spacing-md: 16px;
+
+        --warning-bg: #fff3cd;
+        --warning-text: #856404;
+    }
+
+    * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+    }
+
+    body {
+        font-family: "Rubik", sans-serif;
+        background-color: var(--bg-secondary);
+        color: var(--text-dark);
+        line-height: 1.5;
+        margin: 0 auto;
+        min-height: 100vh;
+        border-left: 1px solid #eee;
+        border-right: 1px solid #eee;
+        background: #fff;
+        /* White bg for main container */
+        max-width: 500px;
+        /* Mobile simulation wrapper */
+    }
+
+    /* Typography */
+    h1,
+    h2,
+    h3 {
+        font-family: "Rubik Mono One", sans-serif;
+        color: var(--text-dark);
+    }
+
+    h1 {
+        font-size: 24px;
+        line-height: 1.2;
+        margin-bottom: 8px;
+    }
+
+    h3 {
+        font-size: 16px;
+        margin-bottom: 4px;
+    }
+
+    /* =========================================
+           2. HEADER & MAP
+        ========================================= */
+    .group-header {
+        background: white;
+        padding-bottom: var(--spacing-md);
+    }
+
+    .map-area {
+        width: 100%;
+        height: 200px;
+        background-color: #e0e0e0;
+        background-image: radial-gradient(circle, #ccc 1px, transparent 1px);
+        background-size: 20px 20px;
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: var(--spacing-md);
+        overflow: hidden;
+    }
+
+    .map-pin {
+        width: 30px;
+        height: 30px;
+        background: var(--primary);
+        border: 3px solid white;
+        border-radius: 50% 50% 50% 0;
+        transform: rotate(-45deg);
+        position: absolute;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    }
+
+    .pin-1 {
+        top: 40%;
+        left: 30%;
+    }
+
+    .pin-2 {
+        top: 60%;
+        left: 70%;
+        background: var(--accent);
+    }
+
+    .group-info {
+        padding: 0 var(--spacing-md);
+    }
+
+    .group-desc {
+        font-size: 14px;
+        color: var(--text-secondary);
+        margin-bottom: 12px;
+    }
+
+    .tags-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+    }
+
+    .tag {
+        background-color: var(--tag-bg);
+        color: white;
+        padding: 4px 10px;
+        border-radius: 20px;
+        font-size: 11px;
+        font-weight: 500;
+    }
+
+    /* =========================================
+           3. NAVIGATION TABS
+        ========================================= */
+    .nav-tabs {
+        display: flex;
+        background: white;
+        padding: 0 var(--spacing-md);
+        border-bottom: 1px solid #eee;
+        position: sticky;
+        top: 0;
+        z-index: 100;
+    }
+
+    .tab-btn {
+        flex: 1;
+        background: none;
+        border: none;
+        padding: 16px 0;
+        font-family: "Rubik", sans-serif;
+        font-weight: 500;
+        font-size: 16px;
+        color: var(--inactive);
+        cursor: pointer;
+        position: relative;
+        transition: color 0.2s;
+    }
+
+    .tab-btn.active {
+        color: var(--primary);
+    }
+
+    .tab-btn.active::after {
+        content: "";
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 3px;
+        background-color: var(--primary);
+        border-radius: 3px 3px 0 0;
+    }
+
+    /* Tab Logic */
+    .tab-content {
+        display: none;
+        padding: 20px 16px;
+        background: var(--bg-secondary);
+        min-height: 500px;
+    }
+
+    .tab-content.active {
+        display: block;
+        animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(5px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* =========================================
+           4. EVENTS TAB STYLES
+        ========================================= */
+    .event-card {
+        background: white;
+        border-radius: var(--radius-lg);
+        padding: var(--spacing-md);
+        margin-bottom: 24px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+        border: 1px solid var(--border-light);
+        overflow: hidden;
+        transition: transform 0.1s;
+    }
+
+    .deadline-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background-color: var(--warning-bg);
+        color: var(--warning-text);
+        font-size: 12px;
+        font-weight: 500;
+        padding: 4px 10px;
+        border-radius: 20px;
+        margin-bottom: 12px;
+    }
+
+    .deadline-badge svg {
+        width: 14px;
+        height: 14px;
+    }
+
+    .participants-status {
+        margin-bottom: 12px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 13px;
+        color: var(--text-secondary);
+        font-weight: 500;
+    }
+
+    .status-bar-bg {
+        flex-grow: 1;
+        height: 6px;
+        background: #eee;
+        border-radius: 3px;
+        overflow: hidden;
+    }
+
+    .status-bar-fill {
+        height: 100%;
+        background: var(--primary);
+        border-radius: 3px;
+    }
+
+    .short-desc {
+        font-size: 14px;
+        color: var(--text-secondary);
+        margin-bottom: 16px;
+    }
+
+    .card-footer {
+        border-top: 1px solid #eee;
+        padding-top: 16px;
+        padding-bottom: 8px;
+        margin-top: 16px;
+    }
+
+    .map-link {
+        display: block;
+        margin-bottom: 16px;
+        color: var(--primary);
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: 500;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 10px;
+    }
+
+    .btn {
+        flex: 1;
+        padding: 12px;
+        border: none;
+        border-radius: 12px;
+        font-family: "Rubik", sans-serif;
+        font-weight: 700;
+        font-size: 14px;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .btn-primary {
+        background-color: var(--primary);
+        color: white;
+    }
+
+    .btn-danger {
+        background-color: white;
+        color: var(--danger);
+        border: 1px solid var(--danger);
+    }
+
+    .btn-notify {
+        background-color: #eef4fb;
+        color: var(--text-dark);
+        border: 2px dashed #98adc1;
+    }
+
+    /* Poll Styles */
+    .poll-container {
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.4s ease;
+        background-color: #f9f9f9;
+        margin: 0 -16px -16px -16px;
+        padding: 0 16px;
+        opacity: 0;
+    }
+
+    .poll-container.active {
+        max-height: 600px;
+        padding-top: 16px;
+        padding-bottom: 16px;
+        border-top: 1px solid #eee;
+        margin-top: 8px;
+        opacity: 1;
+    }
+
+    .poll-title {
+        font-weight: 700;
+        font-size: 14px;
+        display: block;
+        margin-bottom: 10px;
+    }
+
+    .fixed-label {
+        font-size: 11px;
+        color: #999;
+        margin-left: 6px;
+        background: #e0e0e0;
+        padding: 2px 6px;
+        border-radius: 4px;
+    }
+
+    .poll-options-list {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        margin-bottom: 16px;
+    }
+
+    .poll-option-label {
+        display: flex;
+        align-items: center;
+        padding: 12px;
+        background: white;
+        border: 2px solid #eee;
+        border-radius: 10px;
+        font-size: 14px;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .poll-option-label:has(input:checked) {
+        border-color: var(--primary);
+        background-color: #eef7ff;
+        color: var(--primary);
+        font-weight: 500;
+    }
+
+    .poll-option-label input[type="radio"] {
+        accent-color: var(--primary);
+        margin-right: 12px;
+        transform: scale(1.2);
+    }
+
+    .poll-divider {
+        height: 1px;
+        background: #e0e0e0;
+        border: none;
+        margin: 0 0 20px 0;
+    }
+
+    .btn-submit {
+        width: 100%;
+        background: var(--accent);
+        color: #333;
+        padding: 14px;
+        border-radius: 12px;
+        font-weight: 700;
+        border: none;
+        cursor: pointer;
+    }
+
+    /* =========================================
+           5. HISTORY TAB STYLES
+        ========================================= */
+    .month-label {
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: #98adc1;
+        margin-bottom: 12px;
+        font-weight: 700;
+        padding-left: 4px;
+    }
+
+    .history-card {
+        background: white;
+        border-radius: var(--radius-lg);
+        padding: var(--spacing-md);
+        margin-bottom: 24px;
+
+        @extend .event-card;
+        padding: 20px;
+    }
+
+    .card-top-history {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 12px;
+    }
+
+    .date-badge {
+        background: #f0f4f8;
+        color: var(--text-secondary);
+        font-size: 11px;
+        font-weight: 600;
+        padding: 4px 10px;
+        border-radius: 20px;
+    }
+
+    .status-cancelled {
+        background: #ffebee;
+        color: var(--danger);
+    }
+
+    .stats-row {
+        display: flex;
+        gap: 16px;
+        font-size: 13px;
+        color: var(--text-secondary);
+        margin-bottom: 16px;
+    }
+
+    .stat-item {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .stat-item svg {
+        width: 14px;
+        height: 14px;
+        opacity: 0.7;
+    }
+
+    .gallery-scroll {
+        display: flex;
+        gap: 8px;
+        overflow-x: auto;
+        padding-bottom: 4px;
+        margin-bottom: 16px;
+        scrollbar-width: none;
+    }
+
+    .gallery-scroll::-webkit-scrollbar {
+        display: none;
+    }
+
+    .gallery-item {
+        width: 80px;
+        height: 80px;
+        border-radius: 12px;
+        flex-shrink: 0;
+        background-size: cover;
+        background-color: #eee;
+    }
+
+    .gallery-counter {
+        width: 80px;
+        height: 80px;
+        border-radius: 12px;
+        background: #f0f4f8;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 14px;
+        flex-shrink: 0;
+    }
+
+    .materials-box {
+        background: #fcfcfc;
+        border-left: 3px solid var(--accent);
+        padding: 12px;
+        border-radius: 0 8px 8px 0;
+        font-size: 13px;
+        color: var(--text-secondary);
+        margin-bottom: 16px;
+    }
+
+    .btn-history-action {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid #dce0e5;
+        background: white;
+        color: var(--text-dark);
+        border-radius: var(--radius-md);
+        font-weight: 600;
+        font-size: 13px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+    }
+
+    .btn-history-action:hover {
+        border-color: var(--primary);
+        color: var(--primary);
+        background: #f8fbff;
+    }
+
+    /* =========================================
+           6. CHAT TAB STYLES
+        ========================================= */
+    .chat-container {
+        display: flex;
+        flex-direction: column;
+        height: 600px;
+        /* Simulated height */
+        background: white;
+        border-radius: 20px;
+        overflow: hidden;
+        border: 1px solid #eee;
+    }
+
+    .chat-messages {
+        flex: 1;
+        overflow-y: auto;
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+        background-color: #fff;
+    }
+
+    .date-separator {
+        align-self: center;
+        background: rgba(0, 0, 0, 0.05);
+        padding: 4px 12px;
+        border-radius: 12px;
+        font-size: 11px;
+        color: var(--text-secondary);
+        margin: 10px 0;
+    }
+
+    .message-group {
+        display: flex;
+        gap: 10px;
+        max-width: 85%;
+    }
+
+    .avatar {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background: #ddd;
+        flex-shrink: 0;
+        background-size: cover;
+    }
+
+    .bubble {
+        padding: 10px 14px;
+        font-size: 14px;
+        line-height: 1.4;
+        position: relative;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    }
+
+    .msg-time {
+        font-size: 10px;
+        display: block;
+        margin-top: 4px;
+        text-align: right;
+        opacity: 0.7;
+    }
+
+    .message-group.incoming .bubble {
+        background: #f4f6f8;
+        color: var(--text-dark);
+        border-radius: 0 16px 16px 16px;
+    }
+
+    .message-group.outgoing {
+        align-self: flex-end;
+    }
+
+    .message-group.outgoing .bubble {
+        background: var(--primary);
+        color: white;
+        border-radius: 16px 0 16px 16px;
+    }
+
+    .chat-input-area {
+        background: white;
+        padding: 12px 16px;
+        border-top: 1px solid #eee;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .msg-input {
+        width: 100%;
+        padding: 12px 16px;
+        border-radius: 24px;
+        border: 1px solid #e0e0e0;
+        background: #f9f9f9;
+        outline: none;
+    }
+
+    .btn-send {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        border: none;
+        background: var(--primary);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+    }
+</style>
